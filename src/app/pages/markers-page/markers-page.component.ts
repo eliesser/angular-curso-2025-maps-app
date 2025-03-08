@@ -1,8 +1,14 @@
 import { Component, ElementRef, signal, viewChild } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../../environments/environment';
+import { v4 as UUIDv4 } from 'uuid';
 
 mapboxgl.accessToken = environment.mapboxKey;
+
+interface Marker {
+  id: string;
+  mapboxMarker: mapboxgl.Marker;
+}
 
 @Component({
   selector: 'app-markers-page',
@@ -12,6 +18,7 @@ mapboxgl.accessToken = environment.mapboxKey;
 export class MarkersPageComponent {
   divElement = viewChild<ElementRef>('map');
   map = signal<mapboxgl.Map | null>(null);
+  markers = signal<Marker[]>([]);
 
   async ngAfterViewInit() {
     if (!this.divElement()?.nativeElement) return;
@@ -27,25 +34,35 @@ export class MarkersPageComponent {
       zoom: 14,
     });
 
-    const marker = new mapboxgl.Marker({
-      draggable: false,
-      color: '#000',
-    })
-      .setLngLat([-122.40985, 37.793085])
-      .addTo(map);
-
-    marker.on('dragend', (event) => {
-      console.log(event);
-    });
-
     this.mapListeners(map);
   }
 
   mapListeners(map: mapboxgl.Map) {
-    map.on('load', () => {
-      console.log('Map loaded');
-    });
+    map.on('click', (event) => this.mapClick(event));
 
     this.map.set(map);
+  }
+
+  mapClick(event: mapboxgl.MapMouseEvent) {
+    if (!this.map()) return;
+
+    const map = this.map()!;
+    const coords = event.lngLat;
+    const color = '#xxxxxx'.replace(/x/g, (y) =>
+      ((Math.random() * 16) | 0).toString(16)
+    );
+
+    const mapboxMarker = new mapboxgl.Marker({
+      color: color,
+    })
+      .setLngLat(coords)
+      .addTo(map);
+
+    const newMarker: Marker = {
+      id: UUIDv4(),
+      mapboxMarker: mapboxMarker,
+    };
+
+    this.markers.update((markers) => [newMarker, ...markers]);
   }
 }
