@@ -35,6 +35,8 @@ export class FullscreenMapPageComponent {
       center: [lng, lat],
       zoom: this.zoom(),
     });
+
+    this.mapListeners(map);
   }
 
   mapListeners(map: mapboxgl.Map) {
