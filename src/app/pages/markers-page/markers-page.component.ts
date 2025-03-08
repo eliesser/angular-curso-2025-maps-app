@@ -26,5 +26,26 @@ export class MarkersPageComponent {
       center: [-122.40985, 37.793085],
       zoom: 14,
     });
+
+    const marker = new mapboxgl.Marker({
+      draggable: false,
+      color: '#000',
+    })
+      .setLngLat([-122.40985, 37.793085])
+      .addTo(map);
+
+    marker.on('dragend', (event) => {
+      console.log(event);
+    });
+
+    this.mapListeners(map);
+  }
+
+  mapListeners(map: mapboxgl.Map) {
+    map.on('load', () => {
+      console.log('Map loaded');
+    });
+
+    this.map.set(map);
   }
 }
