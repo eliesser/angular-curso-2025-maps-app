@@ -1,4 +1,10 @@
-import { Component, ElementRef, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { environment } from '../../../environments/environment';
 import mapboxgl from 'mapbox-gl';
 import { DecimalPipe, JsonPipe } from '@angular/common';
@@ -19,6 +25,13 @@ export class FullscreenMapPageComponent {
   coordinates = signal({
     lng: -74.5,
     lat: 40,
+  });
+
+  zoomEffect = effect(() => {
+    if (!this.map()) return;
+
+    this.map()?.setZoom(this.zoom());
+    // this.map()?.zoomTo(this.zoom());
   });
 
   async ngAfterViewInit() {
